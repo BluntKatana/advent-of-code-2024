@@ -1,6 +1,6 @@
 # advent-of-code-2024
 
-Code is looking ugly still, will see whether I clean it up or not.
+Code is looking ugly and non-performant in some places, will see whether I clean it up or not.
 
 Written in typescript using Bun :)
 
