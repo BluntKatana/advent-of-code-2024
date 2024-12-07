@@ -4,6 +4,10 @@ Code is looking ugly still, will see whether I clean it up or not.
 
 Written in typescript using Bun :)
 
+## TODO
+
+- Day 4
+
 ## How to run
 
 ```bash
