@@ -7,7 +7,7 @@ const totalCalibrationResult = data.split("\n").reduce((acc, line) => {
   const value = Number(unparsedValue);
   const numbers = unparsedNumbers.trim().split(" ").map(Number);
 
-  const totals = computeAllTotals(numbers, -1, []);
+  const totals = computeAllTotals(numbers.toSpliced(0, 1), numbers[0], []);
   const computable = totals.some((total) => total === value);
 
   return acc + (computable ? value : 0);
@@ -25,21 +25,13 @@ function computeAllTotals(
 
   return [
     // multiplication
-    ...computeAllTotals(
-      numbers.toSpliced(0, 1),
-      total === -1 ? number : total * number,
-      totals
-    ),
+    ...computeAllTotals(numbers.toSpliced(0, 1), total * number, totals),
     // addition
-    ...computeAllTotals(
-      numbers.toSpliced(0, 1),
-      total === -1 ? number : total + number,
-      totals
-    ),
+    ...computeAllTotals(numbers.toSpliced(0, 1), total + number, totals),
     // concatenation
     ...computeAllTotals(
       numbers.toSpliced(0, 1),
-      total === -1 ? number : Number(`${total}${number}`),
+      Number(`${total}${number}`),
       totals
     ),
   ];
