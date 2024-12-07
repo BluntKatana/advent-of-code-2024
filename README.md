@@ -1,15 +1,14 @@
 # advent-of-code-2024
 
-To install dependencies:
+Code is looking ugly still, will see whether I clean it up or not.
+
+Written in typescript using Bun :)
+
+## How to run
 
 ```bash
 bun install
+bun run day-<dayNum>/part<partNum>.ts
 ```
 
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.1.34. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+In each part you can choose to import the `input.txt` or `example.txt` file. Where `input.txt` is the actual input and `example.txt` is the example input give in most of the problems.
