@@ -1,8 +1,9 @@
-// read from file
-const fs = require("fs");
-const data = fs.readFileSync(`${__dirname}/input.txt`, "utf-8") as string;
+import { read } from "../utils";
 
-const city: string[][] = data.split("\n").map((line: string) => line.split(""));
+// read from file
+const data = read(8, "input");
+
+const city: string[][] = data.split("\n").map((line) => line.split(""));
 
 const maxY = city.length;
 const maxX = city[0].length;
