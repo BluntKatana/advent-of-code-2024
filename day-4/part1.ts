@@ -11,8 +11,7 @@ const MAS = ["M", "A", "S"] as const;
 // at each position check whether xmas is spelled vertically, horizontally or diagonally
 let xmasCounter = 0;
 
-// printXMAS();
-
+// at each position
 for (let x = 0; x < maxX; x++) {
   for (let y = 0; y < maxY; y++) {
     // always want to start checking at X
@@ -20,73 +19,40 @@ for (let x = 0; x < maxX; x++) {
       continue;
     }
 
-    const validLeft = x - MAS.length >= 0;
-    const validRight = x + MAS.length < maxX;
-    const validTop = y - MAS.length >= 0;
-    const validBottom = y + MAS.length < maxY;
+    // in every direction
+    for (let dirX = -1; dirX <= 1; dirX++) {
+      for (let dirY = -1; dirY <= 1; dirY++) {
+        let fullMAS = true;
 
-    // horizontally
-    // - check for left
-    if (validLeft) {
-      if (MAS.every((char, index) => xmas[y][x - index - 1] === char)) {
-        xmasCounter++;
-      }
-    }
-    // - check for right
-    if (validRight) {
-      if (MAS.every((char, index) => xmas[y][x + index + 1] === char)) {
-        xmasCounter++;
-      }
-    }
+        // check whether the characters are correct
+        for (let c = 0; c < MAS.length; c++) {
+          const velY = y + dirY * (c + 1);
+          const velX = x + dirX * (c + 1);
 
-    // vertically
-    // - check for top
-    if (validTop) {
-      if (MAS.every((char, index) => xmas[y - index - 1][x] === char)) {
-        xmasCounter++;
-      }
-    }
-    // - check for bottom
-    if (validBottom) {
-      if (MAS.every((char, index) => xmas[y + index + 1][x] === char)) {
-        xmasCounter++;
-      }
-    }
+          if (isInBounds([velX, velY])) {
+            const char = xmas[velY][velX];
 
-    // diagonally
-    // - check for top and left
-    if (validTop && validLeft) {
-      if (
-        MAS.every((char, index) => xmas[y - index - 1][x - index - 1] === char)
-      ) {
-        xmasCounter++;
-      }
-    }
-    // - check for top and right
-    if (validTop && validRight) {
-      if (
-        MAS.every((char, index) => xmas[y - index - 1][x + index + 1] === char)
-      ) {
-        xmasCounter++;
-      }
-    }
-    // - check for bottom and left
-    if (validBottom && validLeft) {
-      if (
-        MAS.every((char, index) => xmas[y + index + 1][x - index - 1] === char)
-      ) {
-        xmasCounter++;
-      }
-    }
-    // - check for bottom and left
-    if (validBottom && validLeft) {
-      if (
-        MAS.every((char, index) => xmas[y + index + 1][x + index + 1] === char)
-      ) {
-        xmasCounter++;
+            if (char !== MAS[c]) {
+              fullMAS = false;
+            }
+          } else {
+            fullMAS = false;
+          }
+        }
+
+        if (fullMAS) xmasCounter++;
       }
     }
   }
 }
 
 console.log(xmasCounter);
+
+function isInBounds(position: number[]) {
+  return (
+    0 <= position[0] &&
+    position[0] < maxX &&
+    0 <= position[1] &&
+    position[1] < maxY
+  );
+}
