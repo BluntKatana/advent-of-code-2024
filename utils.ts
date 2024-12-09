@@ -1,4 +1,4 @@
-const fs = require("fs");
+import * as fs from "fs";
 
 export function read(day: number, type: "example" | "input") {
   return fs.readFileSync(
