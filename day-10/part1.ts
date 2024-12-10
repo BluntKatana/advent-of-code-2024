@@ -32,10 +32,8 @@ let totalScore = 0;
 for (const source of sources) {
   let trailScore = 0;
   for (const destination of destinations) {
-    const emptyVisited = tmap.map((row) => row.map(() => false));
-
     // check if there exists a source -> destination path
-    if (hasPathBetween(-1, source, emptyVisited, destination)) {
+    if (hasPathBetween(-1, source, destination)) {
       trailScore++;
     }
   }
@@ -48,7 +46,6 @@ console.log(totalScore);
 function hasPathBetween(
   prevNum: number,
   pos: [number, number],
-  visited: boolean[][],
   dest: [number, number]
 ) {
   const [x, y] = pos;
@@ -60,26 +57,22 @@ function hasPathBetween(
   const currNum = tmap[y][x];
   if (prevNum + 1 !== currNum) return false;
 
-  // ensure not visited yet
-  if (visited[x][y]) return false;
-  visited[x][y] = true;
-
   // if pos === dest we found a route!
   if (pos[0] === dest[0] && pos[1] === dest[1]) {
     return true;
   }
 
   // try different paths
-  const up = hasPathBetween(currNum, [x, y - 1], visited, dest);
+  const up = hasPathBetween(currNum, [x, y - 1], dest);
   if (up) return true;
 
-  const left = hasPathBetween(currNum, [x - 1, y], visited, dest);
+  const left = hasPathBetween(currNum, [x - 1, y], dest);
   if (left) return true;
 
-  const down = hasPathBetween(currNum, [x, y + 1], visited, dest);
+  const down = hasPathBetween(currNum, [x, y + 1], dest);
   if (down) return true;
 
-  const right = hasPathBetween(currNum, [x + 1, y], visited, dest);
+  const right = hasPathBetween(currNum, [x + 1, y], dest);
   if (right) return true;
 
   // no path found
@@ -93,8 +86,4 @@ function isInBounds(position: number[]) {
     0 <= position[1] &&
     position[1] < maxY
   );
-}
-
-function printMap() {
-  console.log(tmap.map((row) => row.join("")).join("\n"));
 }
