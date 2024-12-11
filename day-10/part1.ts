@@ -1,30 +1,22 @@
+import { Grid } from "../utils/Grid";
 import { read } from "../utils";
 
 // read from file
 const data = read(10, "input");
-const tmap = data.split("\n").map((line) =>
-  line.split("").map((val) => {
-    const num = Number(val);
-    return Number.isNaN(num) ? "." : num;
-  })
-);
 
-const maxX = tmap[0].length;
-const maxY = tmap.length;
+const tmap = new Grid(data, (cell) => {
+  const num = Number(cell);
+  return Number.isNaN(num) ? "." : num;
+});
 
 // define trailheads (0) and all tops (9) where to go
 const sources: [number, number][] = [];
 const destinations: [number, number][] = [];
 
-for (let x = 0; x < maxX; x++) {
-  for (let y = 0; y < maxY; y++) {
-    if (tmap[y][x] === 0) {
-      sources.push([x, y]);
-    } else if (tmap[y][x] === 9) {
-      destinations.push([x, y]);
-    }
-  }
-}
+tmap.forEach((cell, x, y) => {
+  if (cell === 0) sources.push([x, y]);
+  if (cell === 9) destinations.push([x, y]);
+});
 
 // for each source, try to get ot the destination making sure we always
 // go to a cell which is +1
@@ -51,10 +43,10 @@ function hasPathBetween(
   const [x, y] = pos;
 
   // ensure bounds
-  if (!isInBounds(pos)) return false;
+  if (!tmap.isValid(x, y)) return false;
 
   // ensure the currNum of pos is +1 of prevNum
-  const currNum = tmap[y][x];
+  const currNum = tmap.at(x, y);
   if (prevNum + 1 !== currNum) return false;
 
   // if pos === dest we found a route!
@@ -62,28 +54,10 @@ function hasPathBetween(
     return true;
   }
 
-  // try different paths
-  const up = hasPathBetween(currNum, [x, y - 1], dest);
-  if (up) return true;
-
-  const left = hasPathBetween(currNum, [x - 1, y], dest);
-  if (left) return true;
-
-  const down = hasPathBetween(currNum, [x, y + 1], dest);
-  if (down) return true;
-
-  const right = hasPathBetween(currNum, [x + 1, y], dest);
-  if (right) return true;
+  tmap.forEachDirectionFrom(x, y, { dirType: "orthogonal" }, (newX, newY) =>
+    hasPathBetween(currNum, [newX, newY], dest)
+  );
 
   // no path found
   return false;
-}
-
-function isInBounds(position: number[]) {
-  return (
-    0 <= position[0] &&
-    position[0] < maxX &&
-    0 <= position[1] &&
-    position[1] < maxY
-  );
 }
