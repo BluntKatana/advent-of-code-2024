@@ -1,20 +1,18 @@
 import { Direction, type DirectionPattern } from "./Direction";
 
+export const identity = <Val>(val: Val): Val => val;
+
 export class Grid<Cell> {
   original: string;
   grid: Cell[][];
   maxX;
   maxY;
 
-  constructor(str: string, transformCell?: (cell: string) => Cell) {
+  constructor(str: string, transformCell: (cell: string) => Cell) {
     this.original = str;
     this.grid = str
       .split("\n")
-      .map((line) =>
-        line
-          .split("")
-          .map((val) => (transformCell ? transformCell?.(val) : (val as Cell)))
-      );
+      .map((line) => line.split("").map((val) => transformCell(val)));
 
     this.maxX = this.grid[0].length;
     this.maxY = this.grid.length;
@@ -94,7 +92,7 @@ export class Grid<Cell> {
     console.log(this.toString());
   }
 
-  copy<NewCell>(transformCell?: (cell: string) => NewCell) {
+  copy<NewCell>(transformCell: (cell: string) => NewCell) {
     return new Grid(this.toString(), transformCell);
   }
 }

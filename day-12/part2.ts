@@ -1,10 +1,10 @@
 import { read } from "../utils";
 import { Direction } from "../utils/Direction";
-import { Grid } from "../utils/Grid";
+import { Grid, identity } from "../utils/Grid";
 
 const data = read(12, "input");
 
-const gardens = new Grid(data, (val) => val);
+const gardens = new Grid(data, identity);
 const visited = new Grid(data, () => false);
 
 let totalCost = 0;
