@@ -1,39 +1,88 @@
 import { read } from "../utils";
+import { Grid } from "../utils/Grid";
 
-const BLINKS = 75;
+const data = read(12, "input");
 
-const data = read(11, "input");
+const gardens = new Grid(data, (val) => val);
+const visited = new Grid(data, () => false);
 
-let stonesMap = new Map<number, number>();
-for (const stone of data.split(" ").map(Number)) {
-  stonesMap.set(stone, (stonesMap.get(stone) || 0) + 1);
-}
+let totalCost = 0;
 
-function blink() {
-  const newStonesMap = new Map<number, number>();
+gardens.forEach((garden, x, y) => {
+  if (visited.at(x, y)) {
+    return;
+  }
 
-  for (const [stone, count] of stonesMap.entries()) {
-    if (stone === 0) {
-      newStonesMap.set(1, (newStonesMap.get(1) || 0) + count);
-    } else if (stone.toString().length % 2 === 0) {
-      const strStone = stone.toString();
-      const pivot = Math.floor(strStone.length / 2);
-      const leftStone = Number(strStone.substring(0, pivot));
-      const rightStone = Number(strStone.substring(pivot));
+  const { area, corners } = floodfill(garden, x, y);
+  totalCost += area * corners;
+});
 
-      newStonesMap.set(leftStone, (newStonesMap.get(leftStone) || 0) + count);
-      newStonesMap.set(rightStone, (newStonesMap.get(rightStone) || 0) + count);
-    } else {
-      const largeStone = stone * 2024;
-      newStonesMap.set(largeStone, (newStonesMap.get(largeStone) || 0) + count);
+console.log(totalCost);
+
+function floodfill(regionToCheck: string, initialX: number, initialY: number) {
+  const queue = [{ x: initialX, y: initialY }];
+  const fillVisisted = new Grid(data, () => false);
+
+  let area = 0;
+  let corners = 0;
+
+  while (queue.length > 0) {
+    const { x, y } = queue.pop()!;
+    if (!gardens.withinBounds(x, y) || fillVisisted.at(x, y)) {
+      continue;
+    }
+
+    const region = gardens.at(x, y);
+
+    // add x,y to perimeter of region if not in the same region,
+    // and continue to next position
+    if (region === regionToCheck) {
+      visited.set(x, y, true);
+      fillVisisted.set(x, y, true);
+
+      // add area
+      area += 1;
+
+      // add corners
+      // - outer corners:
+      // XX => A is an outer corners as up and right
+      // AX    it contains other regions
+      // ^ do this for all diagonal 2x2 areas for this cell
+      // - inner corners:
+      // AX => A (bottom-left) is an inner corner as it
+      // AA    has same region neighbours, and diagonally it a different region than region
+      // ^ do this for all directions
+      for (const xDir of [-1, 1]) {
+        for (const yDir of [-1, 1]) {
+          const adjRegion1 = gardens.at(x + xDir, y, true);
+          const adjRegion2 = gardens.at(x, y + yDir, true);
+
+          // check if outer corner
+          if (adjRegion1 !== region && adjRegion2 !== region) {
+            corners += 1;
+          }
+
+          // check if inner corner
+          const diagonalRegion = gardens.at(x + xDir, y + yDir, true);
+          if (
+            adjRegion1 === region &&
+            adjRegion2 === region &&
+            diagonalRegion !== region
+          ) {
+            corners += 1;
+          }
+        }
+      }
+
+      // Add all directions to floodfill
+      gardens.forEachDirectionFrom(
+        x,
+        y,
+        { dirType: "orthogonal", checkForBounds: false },
+        (newX, newY) => queue.push({ x: newX, y: newY })
+      );
     }
   }
-  stonesMap = newStonesMap;
-}
 
-for (let hoi = 0; hoi < BLINKS; hoi++) {
-  blink();
+  return { area, corners };
 }
-
-const stoneCount = stonesMap.values().reduce((acc, val) => acc + val);
-console.log(stoneCount);

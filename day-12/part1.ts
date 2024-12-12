@@ -1,7 +1,7 @@
 import { read } from "../utils";
 import { Grid } from "../utils/Grid";
 
-const data = read(12, "input");
+const data = read(12, "example");
 
 const gardens = new Grid(data, (val) => val);
 const visited = new Grid(data, () => false);
@@ -14,7 +14,6 @@ gardens.forEach((garden, x, y) => {
   }
 
   const { perimeter, area } = floodfill(garden, x, y);
-
   totalCost += perimeter * area;
 });
 

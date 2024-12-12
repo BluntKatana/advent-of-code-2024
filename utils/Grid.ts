@@ -28,7 +28,15 @@ export class Grid<Cell> {
     return 0 <= x && x < this.maxX && 0 <= y && y < this.maxY;
   }
 
-  at(x: number, y: number) {
+  at(x: number, y: number, gracefulError?: boolean): Cell | "unknown" {
+    if (gracefulError) {
+      try {
+        return this.grid[y][x];
+      } catch {
+        return "unknown";
+      }
+    }
+
     return this.grid[y][x];
   }
 
@@ -42,13 +50,20 @@ export class Grid<Cell> {
     {
       dirType,
       checkForBounds = true,
-    }: { dirType: "orthogonal" | "diagonal"; checkForBounds?: boolean },
+    }: {
+      dirType: "orthogonal" | "diagonal" | "pure-diagonal";
+      checkForBounds?: boolean;
+    },
     forCell: (x: number, y: number) => void
   ) {
     for (let dirX = -1; dirX <= 1; dirX++) {
       for (let dirY = -1; dirY <= 1; dirY++) {
         // ensure adjacent direction when ortogonal
         if (dirType === "orthogonal" && dirX !== 0 && dirY !== 0) {
+          continue;
+        }
+
+        if (dirType === "pure-diagonal" && (dirX === 0 || dirY === 0)) {
           continue;
         }
 
