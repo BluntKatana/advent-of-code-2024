@@ -1,3 +1,5 @@
+import { Direction, type DirectionPattern } from "./Direction";
+
 export class Grid<Cell> {
   grid: Cell[][];
   maxX;
@@ -44,37 +46,23 @@ export class Grid<Cell> {
     this.grid[y][x] = cell;
   }
 
-  forEachDirectionFrom(
+  loop(
+    dir: DirectionPattern,
     x: number,
     y: number,
-    {
-      dirType,
-      checkForBounds = true,
-    }: {
-      dirType: "orthogonal" | "diagonal" | "pure-diagonal";
-      checkForBounds?: boolean;
-    },
-    forCell: (x: number, y: number) => void
+    callback: (newX: number, newY: number) => void,
+    { inBounds = true }: { inBounds?: boolean }
   ) {
-    for (let dirX = -1; dirX <= 1; dirX++) {
-      for (let dirY = -1; dirY <= 1; dirY++) {
-        // ensure adjacent direction when ortogonal
-        if (dirType === "orthogonal" && dirX !== 0 && dirY !== 0) {
-          continue;
-        }
+    Direction.loop(dir, (offsetX, offsetY) => {
+      const newX = x + offsetX;
+      const newY = y + offsetY;
 
-        if (dirType === "pure-diagonal" && (dirX === 0 || dirY === 0)) {
-          continue;
-        }
-
-        const newX = x + dirX;
-        const newY = y + dirY;
-
-        // ensure in bounds
-        if (checkForBounds && !this.withinBounds(x + dirX, y + dirY)) return;
-        forCell(newX, newY);
+      if (inBounds && !this.withinBounds(newX, newY)) {
+        return;
       }
-    }
+
+      callback(offsetX + x, offsetY + y);
+    });
   }
 
   print(transformCell?: (cell: Cell) => string) {

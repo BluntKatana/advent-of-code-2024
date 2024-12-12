@@ -52,11 +52,12 @@ function floodfill(regionToCheck: string, initialX: number, initialY: number) {
       area += 1;
 
       // Add all directions to floodfill
-      gardens.forEachDirectionFrom(
+      gardens.loop(
+        "orthogonal",
         x,
         y,
-        { dirType: "orthogonal", checkForBounds: false },
-        (newX, newY) => queue.push({ x: newX, y: newY })
+        (newX, newY) => queue.push({ x: newX, y: newY }),
+        { inBounds: false }
       );
     }
   }

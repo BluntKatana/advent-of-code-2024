@@ -54,8 +54,12 @@ function hasPathBetween(
     return true;
   }
 
-  tmap.forEachDirectionFrom(x, y, { dirType: "orthogonal" }, (newX, newY) =>
-    hasPathBetween(currNum, [newX, newY], dest)
+  tmap.loop(
+    "orthogonal",
+    x,
+    y,
+    (newX, newY) => hasPathBetween(currNum, [newX, newY], dest),
+    {}
   );
 
   // no path found

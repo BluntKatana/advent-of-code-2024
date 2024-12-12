@@ -1,4 +1,5 @@
 import { read } from "../utils";
+import { Direction } from "../utils/Direction";
 import { Grid } from "../utils/Grid";
 
 const data = read(12, "input");
@@ -52,34 +53,33 @@ function floodfill(regionToCheck: string, initialX: number, initialY: number) {
       // AX => A (bottom-left) is an inner corner as it
       // AA    has same region neighbours, and diagonally it a different region than region
       // ^ do this for all directions
-      for (const xDir of [-1, 1]) {
-        for (const yDir of [-1, 1]) {
-          const adjRegion1 = gardens.at(x + xDir, y, true);
-          const adjRegion2 = gardens.at(x, y + yDir, true);
+      Direction.loop("diagonal", (xDir, yDir) => {
+        const adjRegion1 = gardens.at(x + xDir, y, true);
+        const adjRegion2 = gardens.at(x, y + yDir, true);
 
-          // check if outer corner
-          if (adjRegion1 !== region && adjRegion2 !== region) {
-            corners += 1;
-          }
-
-          // check if inner corner
-          const diagonalRegion = gardens.at(x + xDir, y + yDir, true);
-          if (
-            adjRegion1 === region &&
-            adjRegion2 === region &&
-            diagonalRegion !== region
-          ) {
-            corners += 1;
-          }
+        // check if outer corner
+        if (adjRegion1 !== region && adjRegion2 !== region) {
+          corners += 1;
         }
-      }
+
+        // check if inner corner
+        const diagonalRegion = gardens.at(x + xDir, y + yDir, true);
+        if (
+          adjRegion1 === region &&
+          adjRegion2 === region &&
+          diagonalRegion !== region
+        ) {
+          corners += 1;
+        }
+      });
 
       // Add all directions to floodfill
-      gardens.forEachDirectionFrom(
+      gardens.loop(
+        "orthogonal",
         x,
         y,
-        { dirType: "orthogonal", checkForBounds: false },
-        (newX, newY) => queue.push({ x: newX, y: newY })
+        (newX, newY) => queue.push({ x: newX, y: newY }),
+        { inBounds: false }
       );
     }
   }
