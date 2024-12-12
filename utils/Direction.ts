@@ -12,34 +12,34 @@ export class Direction {
    */
   static loop(
     dir: DirectionPattern,
-    callback: (offsetX: number, offset: number) => void
+    callback: (offsetX: number, offsetY: number) => void
   ) {
-    const offsets: Record<typeof dir, [number, number][]> = {
+    const offsets: Record<typeof dir, { x: number; y: number }[]> = {
       orthogonal: [
-        [-1, 0],
-        [1, 0],
-        [0, -1],
-        [0, 1],
+        { x: -1, y: 0 },
+        { x: 1, y: 0 },
+        { x: 0, y: -1 },
+        { x: 0, y: 1 },
       ],
       diagonal: [
-        [-1, -1],
-        [-1, 1],
-        [1, -1],
-        [1, 1],
+        { x: -1, y: -1 },
+        { x: -1, y: 1 },
+        { x: 1, y: -1 },
+        { x: 1, y: 1 },
       ],
       all: [
-        [-1, 0],
-        [1, 0],
-        [0, -1],
-        [0, 1],
-        [-1, -1],
-        [-1, 1],
-        [1, -1],
-        [1, 1],
+        { x: -1, y: 0 },
+        { x: 1, y: 0 },
+        { x: 0, y: -1 },
+        { x: 0, y: 1 },
+        { x: -1, y: -1 },
+        { x: -1, y: 1 },
+        { x: 1, y: -1 },
+        { x: 1, y: 1 },
       ],
     };
 
-    for (const [x, y] of offsets[dir]) {
+    for (const { x, y } of offsets[dir]) {
       callback(x, y);
     }
   }

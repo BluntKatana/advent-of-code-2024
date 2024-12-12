@@ -30,8 +30,12 @@ export class Grid<Cell> {
     return 0 <= x && x < this.maxX && 0 <= y && y < this.maxY;
   }
 
-  at(x: number, y: number, gracefulError?: boolean): Cell | "unknown" {
-    if (gracefulError) {
+  at(
+    x: number,
+    y: number,
+    settings: Partial<{ throwOnError: boolean }> = { throwOnError: true }
+  ): Cell | "unknown" {
+    if (!settings.throwOnError) {
       try {
         return this.grid[y][x];
       } catch {
@@ -42,8 +46,19 @@ export class Grid<Cell> {
     return this.grid[y][x];
   }
 
-  set(x: number, y: number, cell: Cell) {
-    this.grid[y][x] = cell;
+  set(
+    x: number,
+    y: number,
+    cell: Cell,
+    settings: Partial<{ throwOnError: boolean }> = { throwOnError: true }
+  ) {
+    if (!settings.throwOnError) {
+      try {
+        this.grid[y][x] = cell;
+      } catch {}
+    } else {
+      this.grid[y][x] = cell;
+    }
   }
 
   loop(
@@ -51,13 +66,13 @@ export class Grid<Cell> {
     x: number,
     y: number,
     callback: (newX: number, newY: number) => void,
-    { inBounds = true }: { inBounds?: boolean }
+    settings: Partial<{ inBounds: boolean }> = { inBounds: true }
   ) {
     Direction.loop(dir, (offsetX, offsetY) => {
       const newX = x + offsetX;
       const newY = y + offsetY;
 
-      if (inBounds && !this.withinBounds(newX, newY)) {
+      if (settings.inBounds && !this.withinBounds(newX, newY)) {
         return;
       }
 

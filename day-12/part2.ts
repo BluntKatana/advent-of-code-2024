@@ -54,8 +54,8 @@ function floodfill(regionToCheck: string, initialX: number, initialY: number) {
       // AA    has same region neighbours, and diagonally it a different region than region
       // ^ do this for all directions
       Direction.loop("diagonal", (xDir, yDir) => {
-        const adjRegion1 = gardens.at(x + xDir, y, true);
-        const adjRegion2 = gardens.at(x, y + yDir, true);
+        const adjRegion1 = gardens.at(x + xDir, y, { throwOnError: false });
+        const adjRegion2 = gardens.at(x, y + yDir, { throwOnError: false });
 
         // check if outer corner
         if (adjRegion1 !== region && adjRegion2 !== region) {
@@ -63,13 +63,14 @@ function floodfill(regionToCheck: string, initialX: number, initialY: number) {
         }
 
         // check if inner corner
-        const diagonalRegion = gardens.at(x + xDir, y + yDir, true);
-        if (
-          adjRegion1 === region &&
-          adjRegion2 === region &&
-          diagonalRegion !== region
-        ) {
-          corners += 1;
+        if (adjRegion1 === region && adjRegion2 === region) {
+          const diagonalRegion = gardens.at(x + xDir, y + yDir, {
+            throwOnError: false,
+          });
+
+          if (diagonalRegion !== region) {
+            corners += 1;
+          }
         }
       });
 

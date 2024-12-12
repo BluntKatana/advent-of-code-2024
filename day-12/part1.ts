@@ -1,7 +1,7 @@
 import { read } from "../utils";
 import { Grid } from "../utils/Grid";
 
-const data = read(12, "example");
+const data = read(12, "input");
 
 const gardens = new Grid(data, (val) => val);
 const visited = new Grid(data, () => false);
