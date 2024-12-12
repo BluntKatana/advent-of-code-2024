@@ -22,7 +22,7 @@ console.log(totalCost);
 
 function floodfill(regionToCheck: string, initialX: number, initialY: number) {
   const queue = [{ x: initialX, y: initialY }];
-  const fillVisisted = new Grid(data, () => false);
+  const fillVisisted = gardens.copy(() => false);
 
   let area = 0;
   let corners = 0;

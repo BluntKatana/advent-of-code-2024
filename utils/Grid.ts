@@ -1,11 +1,13 @@
 import { Direction, type DirectionPattern } from "./Direction";
 
 export class Grid<Cell> {
+  original: string;
   grid: Cell[][];
   maxX;
   maxY;
 
   constructor(str: string, transformCell?: (cell: string) => Cell) {
+    this.original = str;
     this.grid = str
       .split("\n")
       .map((line) =>
@@ -34,12 +36,12 @@ export class Grid<Cell> {
     x: number,
     y: number,
     settings: Partial<{ throwOnError: boolean }> = { throwOnError: true }
-  ): Cell | "unknown" {
+  ): Cell | "not-found" {
     if (!settings.throwOnError) {
       try {
         return this.grid[y][x];
       } catch {
-        return "unknown";
+        return "not-found";
       }
     }
 
@@ -80,15 +82,19 @@ export class Grid<Cell> {
     });
   }
 
-  print(transformCell?: (cell: Cell) => string) {
-    console.log(
-      this.grid
-        .map((row) =>
-          row
-            .map((cell) => (transformCell ? transformCell(cell) : cell))
-            .join("")
-        )
-        .join("\n")
-    );
+  toString(transformCell?: (cell: Cell) => string) {
+    return this.grid
+      .map((row) =>
+        row.map((cell) => (transformCell ? transformCell(cell) : cell)).join("")
+      )
+      .join("\n");
+  }
+
+  print() {
+    console.log(this.toString());
+  }
+
+  copy<NewCell>(transformCell?: (cell: string) => NewCell) {
+    return new Grid(this.toString(), transformCell);
   }
 }
