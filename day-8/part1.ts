@@ -1,23 +1,16 @@
 import { read } from "../utils";
+import { Grid } from "../utils/Grid";
 
 // read from file
 const data = read(8, "input");
 
-const city: string[][] = data.split("\n").map((line) => line.split(""));
-
-const maxY = city.length;
-const maxX = city[0].length;
+const city = new Grid(data, (val) => val);
 
 const antennas = new Map<string, [number, number][]>();
 
-for (let x = 0; x < maxX; x++) {
-  for (let y = 0; y < maxY; y++) {
-    const pos = city[y][x];
-    if (pos === ".") continue;
-
-    antennas.set(pos, [...(antennas.get(pos) ?? []), [x, y]]);
-  }
-}
+city.forEach((c, x, y) => {
+  if (c !== ".") antennas.set(c, [...(antennas.get(c) ?? []), [x, y]]);
+});
 
 const antinodes = new Set<string>();
 
@@ -27,41 +20,21 @@ antennas.forEach((positions, char) => {
     for (let j = i; j < positions.length; j++) {
       if (i === j) continue;
 
-      const positionA = positions[i];
-      const positionB = positions[j];
+      const [iX, iY] = positions[i];
+      const [jX, jY] = positions[j];
 
-      const diff = [positionA[0] - positionB[0], positionA[1] - positionB[1]];
+      const diffX = iX - jX;
+      const diffY = iY - jY;
 
-      const antinodeA = [positionA[0] + diff[0], positionA[1] + diff[1]];
-      const antinodeB = [positionB[0] - diff[0], positionB[1] - diff[1]];
+      const aX = iX + diffX;
+      const aY = iY + diffY;
+      if (city.withinBounds(aX, aY)) antinodes.add([aX, aY].toString());
 
-      if (isInBounds(antinodeA)) antinodes.add(antinodeA.toString());
-      if (isInBounds(antinodeB)) antinodes.add(antinodeB.toString());
+      const bX = jX - diffX;
+      const bY = jY - diffY;
+      if (city.withinBounds(bX, bY)) antinodes.add([bX, bY].toString());
     }
   }
 });
 
-printCity();
 console.log(antinodes.size);
-
-function isInBounds(position: number[]) {
-  return (
-    0 <= position[0] &&
-    position[0] < maxX &&
-    0 <= position[1] &&
-    position[1] < maxY
-  );
-}
-
-function printCity() {
-  city.forEach((line, y) => {
-    console.log(
-      line
-        .map((char, x) => {
-          if (antinodes.has([x, y].toString())) return "#";
-          return char;
-        })
-        .join("")
-    );
-  });
-}

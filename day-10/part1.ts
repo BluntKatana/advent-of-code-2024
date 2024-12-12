@@ -43,7 +43,7 @@ function hasPathBetween(
   const [x, y] = pos;
 
   // ensure bounds
-  if (!tmap.isValid(x, y)) return false;
+  if (!tmap.withinBounds(x, y)) return false;
 
   // ensure the currNum of pos is +1 of prevNum
   const currNum = tmap.at(x, y);

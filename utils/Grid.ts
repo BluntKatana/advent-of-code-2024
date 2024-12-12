@@ -1,12 +1,16 @@
-export class Grid<Cell extends string | number> {
+export class Grid<Cell> {
   grid: Cell[][];
   maxX;
   maxY;
 
-  constructor(str: string, transformCell: (cell: string) => Cell) {
+  constructor(str: string, transformCell?: (cell: string) => Cell) {
     this.grid = str
       .split("\n")
-      .map((line) => line.split("").map((val) => transformCell(val)));
+      .map((line) =>
+        line
+          .split("")
+          .map((val) => (transformCell ? transformCell?.(val) : (val as Cell)))
+      );
 
     this.maxX = this.grid[0].length;
     this.maxY = this.grid.length;
@@ -20,7 +24,7 @@ export class Grid<Cell extends string | number> {
     }
   }
 
-  isValid(x: number, y: number) {
+  withinBounds(x: number, y: number) {
     return 0 <= x && x < this.maxX && 0 <= y && y < this.maxY;
   }
 
@@ -28,27 +32,45 @@ export class Grid<Cell extends string | number> {
     return this.grid[y][x];
   }
 
+  set(x: number, y: number, cell: Cell) {
+    this.grid[y][x] = cell;
+  }
+
   forEachDirectionFrom(
     x: number,
     y: number,
-    { dirType }: { dirType: "orthogonal" | "diagonal" },
+    {
+      dirType,
+      checkForBounds = true,
+    }: { dirType: "orthogonal" | "diagonal"; checkForBounds?: boolean },
     forCell: (x: number, y: number) => void
   ) {
     for (let dirX = -1; dirX <= 1; dirX++) {
       for (let dirY = -1; dirY <= 1; dirY++) {
         // ensure adjacent direction when ortogonal
         if (dirType === "orthogonal" && dirX !== 0 && dirY !== 0) {
-          return;
+          continue;
         }
 
         const newX = x + dirX;
         const newY = y + dirY;
 
         // ensure in bounds
-        if (!this.isValid(x + dirX, y + dirY)) return;
-
+        if (checkForBounds && !this.withinBounds(x + dirX, y + dirY)) return;
         forCell(newX, newY);
       }
     }
+  }
+
+  print(transformCell?: (cell: Cell) => string) {
+    console.log(
+      this.grid
+        .map((row) =>
+          row
+            .map((cell) => (transformCell ? transformCell(cell) : cell))
+            .join("")
+        )
+        .join("\n")
+    );
   }
 }
