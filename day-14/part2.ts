@@ -31,6 +31,8 @@ for (let second = 0; second < SECONDS; second++) {
   // check if has potential for christamas tree:
   // - having more than 4 digits in a single row
   if (hasPotential()) {
+    // manual check through terminal if we can see
+    // a christmass tree
     console.log("\n");
     console.log(second);
     console.log(robotsToString());
