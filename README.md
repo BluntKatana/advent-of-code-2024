@@ -4,6 +4,11 @@ Code is looking ugly and non-performant in some places, will see whether I clean
 
 Written in typescript using Bun :)
 
+## Todo
+
+- day 16
+- day 17 part 2
+
 ## How to run
 
 ```bash
