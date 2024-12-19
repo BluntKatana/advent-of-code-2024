@@ -6,7 +6,7 @@ Written in typescript using Bun :)
 
 ## Todo
 
-- day 16
+- day 16 part 2
 - day 17 part 2
 
 ## How to run
