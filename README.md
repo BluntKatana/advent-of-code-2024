@@ -8,9 +8,9 @@ Written in typescript using Bun :)
 
 - day 16 part 2
 - day 17 part 2
-- day 19 part 2 (doable)
+- day 19 part 2
 - day 20
-- day 21
+- day 21 part 2
 
 ## How to run
 
