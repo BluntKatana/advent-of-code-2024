@@ -1,5 +1,5 @@
 import { read } from "../utils";
-import { mod, sum } from "../utils/math";
+import { mod, multiply } from "../utils/math";
 
 const data = read(14, "input");
 const lines = data.split("\n");
@@ -48,5 +48,5 @@ for (const robot of robots) {
   }
 }
 
-const safetyFactor = sum(quadrants);
+const safetyFactor = multiply(quadrants);
 console.log(safetyFactor);

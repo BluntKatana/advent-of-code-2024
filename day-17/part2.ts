@@ -1,5 +1,5 @@
 import { read } from "../utils";
-import { mod, sum } from "../utils/math";
+import { mod, multiply } from "../utils/math";
 
 const data = read(17, "input");
 const lines = data.split("\n");
