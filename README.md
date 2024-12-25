@@ -12,12 +12,15 @@ Written in typescript using Bun :)
 - day 20
 - day 21
 - day 22 part 2
+- day 23
+- day 24
+- day 25
 
 ## How to run
 
 ```bash
 bun install
-bun run day-<dayNum>/part<partNum>.ts
+bun run day-[dayNum]/part[partNum].ts
 ```
 
 In each part you can choose to import the `input.txt` or `example.txt` file. Where `input.txt` is the actual input and `example.txt` is the example input give in most of the problems.

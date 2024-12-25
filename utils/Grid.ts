@@ -80,16 +80,18 @@ export class Grid<Cell> {
     });
   }
 
-  toString(transformCell?: (cell: Cell) => string) {
+  toString(transformCell?: (cell: Cell, x: number, y: number) => string) {
     return this.grid
-      .map((row) =>
-        row.map((cell) => (transformCell ? transformCell(cell) : cell)).join("")
+      .map((row, y) =>
+        row
+          .map((cell, x) => (transformCell ? transformCell(cell, x, y) : cell))
+          .join("")
       )
       .join("\n");
   }
 
-  print() {
-    console.log(this.toString());
+  print(transformCell?: (cell: Cell, x: number, y: number) => string) {
+    console.log(this.toString(transformCell));
   }
 
   copy<NewCell>(transformCell: (cell: string) => NewCell) {

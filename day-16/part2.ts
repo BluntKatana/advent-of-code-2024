@@ -14,8 +14,15 @@ grid.forEach((c, x, y) => {
 
 function heuristic(pos: Pos, dest: Pos) {
   // manhatten distance
-  return 0;
   return Math.abs(pos.x - dest.x) + Math.abs(pos.y - dest.y);
+}
+
+function hashPos({ x, y }: Pos) {
+  return `${x},${y}`;
+}
+
+function hashPosDir({ x, y }: Pos, dir: Pos) {
+  return `${x},${y}/${dir.x},${dir.y}`;
 }
 
 function aStar(start: Pos, dest: Pos) {
@@ -23,8 +30,10 @@ function aStar(start: Pos, dest: Pos) {
   const gScore = new Map();
   const visited = new Set();
 
+  const cameFrom = new Map<string, { dir: Pos; pos: Pos }[]>();
+
   const enqueue = (pos: Pos, dir: Pos, f: number) =>
-    openSet.set(`${pos.x},${pos.y}/${dir.x},${dir.y}`, { pos, dir, f });
+    openSet.set(hashPosDir(pos, dir), { pos, dir, f });
 
   const dequeue = () => {
     let minKey = null;
@@ -45,77 +54,111 @@ function aStar(start: Pos, dest: Pos) {
     return null;
   };
 
-  const hashPos = ({ x, y }: Pos, dir: Pos) => `${x},${y}/${dir.x},${dir.y}`;
-
   // inti looking east (right)
-  gScore.set(hashPos(start, { x: 1, y: 0 }), 0);
+  gScore.set(hashPosDir(start, { x: 1, y: 0 }), 0);
   enqueue(start, { x: 1, y: 0 }, heuristic(start, dest));
 
   while (openSet.size > 0) {
     const item = dequeue()!;
     const { pos: current, dir } = item;
-    const currentHash = hashPos(current, dir);
+    const currentHash = hashPosDir(current, dir);
 
     // check if destination is reached
     if (current.x === dest.x && current.y === dest.y) {
-      return gScore.get(currentHash);
+      let paths: Pos[] = [];
+      let currentPositions = [{ pos: current, dir }];
+
+      while (currentPositions.length > 0) {
+        let next: { pos: Pos; dir: Pos }[] = [];
+
+        currentPositions.forEach((currPos) => {
+          const from = cameFrom.get(hashPosDir(currPos.pos, currPos.dir));
+          if (from !== undefined) {
+            from.forEach(({ pos: fromPos, dir: fromDir }) => {
+              if (
+                currPos.pos.x === fromPos.x &&
+                currPos.pos.y === fromPos.y &&
+                currPos.dir.x === fromDir.x &&
+                currPos.dir.y === fromDir.y
+              ) {
+              } else {
+                next.push({ pos: fromPos, dir: fromDir });
+              }
+            });
+          }
+        });
+
+        paths = paths.concat(currentPositions.map(({ pos }) => pos));
+        currentPositions = next;
+      }
+
+      console.log(paths.length);
+
+      return { paths, score: gScore.get(currentHash) };
     }
 
     // mark as visited
-    visited.add(currentHash);
+    // visited.add(currentHash);
 
     // explore possible options
     // - move forward, or
     // - rotate 90 left or right
     for (const option of ["forward", "left", "right"] as const) {
+      let newPos: Pos;
+      let newDir: Pos;
+      let cost;
+
       if (option === "forward") {
-        const newPos = { x: current.x + dir.x, y: current.y + dir.y };
-        const newDir = dir;
-        const newHash = hashPos(newPos, newDir);
-
-        // valid new option
-        if (visited.has(newHash)) continue;
-        if (!grid.withinBounds(newPos.x, newPos.y)) continue;
-        if (grid.at(newPos.x, newPos.y) === "#") continue;
-
-        // add 1 for moving forward
-        const tentativeG = gScore.get(currentHash) + 1;
-
-        // if this path is better, update gScore and enqueue neighbor
-        if (!gScore.has(newHash) || tentativeG < gScore.get(newHash)) {
-          gScore.set(newHash, tentativeG);
-          const fScore = tentativeG + heuristic(newPos, newDir);
-          enqueue(newPos, newDir, fScore);
-        }
+        newPos = { x: current.x + dir.x, y: current.y + dir.y };
+        newDir = dir;
+        cost = 1;
+      } else if (option === "left") {
+        newPos = current;
+        newDir = { x: -dir.y, y: dir.x };
+        cost = 1000;
       } else {
-        const newPos = current;
-        const newDir =
-          option === "left" ? { x: -dir.y, y: dir.x } : { x: dir.y, y: -dir.x };
-
-        const newHash = hashPos(newPos, newDir);
-
-        // valid new otion
-        if (visited.has(newHash)) continue;
-        if (!grid.withinBounds(newPos.x, newPos.y)) continue;
-        if (grid.at(newPos.x, newPos.y) === "#") continue;
-
-        // add 1000 for rotating
-        const tentativeG = gScore.get(currentHash) + 1000;
-
-        // if this path is better, update gScore and enqueue neighbor
-        if (!gScore.has(newHash) || tentativeG < gScore.get(newHash)) {
-          gScore.set(newHash, tentativeG);
-          const fScore = tentativeG + heuristic(newPos, newDir);
-          enqueue(newPos, newDir, fScore);
-        }
+        newPos = current;
+        newDir = { x: dir.y, y: -dir.x };
+        cost = 1000;
       }
+
+      const newHash = hashPosDir(newPos, newDir);
+
+      // valid new option
+      if (visited.has(newHash)) continue;
+      if (!grid.withinBounds(newPos.x, newPos.y)) continue;
+      if (grid.at(newPos.x, newPos.y) === "#") continue;
+
+      // add 1 for moving forward
+      const tentativeG = gScore.get(currentHash) + cost;
+
+      // if this path is better, update gScore and enqueue neighbor
+      if (!gScore.has(newHash) || tentativeG < gScore.get(newHash)) {
+        gScore.set(newHash, tentativeG);
+        const fScore = tentativeG + heuristic(newPos, dest);
+        enqueue(newPos, newDir, fScore);
+      }
+
+      if (!cameFrom.has(newHash)) {
+        cameFrom.set(newHash, []);
+      }
+      cameFrom.get(newHash)!.push({ pos: current, dir });
     }
   }
 
   // not reachable
-  return Infinity;
+  return { paths: [], score: Infinity };
 }
 
 const minimumSteps = aStar(start, dest);
 
-console.log(minimumSteps);
+const uniquePositions = new Set(minimumSteps.paths.map(hashPos));
+
+grid.print((c, x, y) => {
+  if (uniquePositions.has(hashPos({ x, y }))) {
+    return "O";
+  }
+  return c;
+});
+
+console.log(minimumSteps.score);
